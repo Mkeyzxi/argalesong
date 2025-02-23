@@ -113,5 +113,5 @@
     </div>
 @endsection
 @push('scripts')
-@vite('resources/js/test.js')
+@vite('resources/js/pembayaran.js')
 @endpush

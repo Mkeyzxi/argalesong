@@ -124,5 +124,5 @@
 @endsection
 
 @push('scripts')
-@vite('resources/js/test.js') 
+@vite('resources/js/riwayat-piutang.js') 
 @endpush

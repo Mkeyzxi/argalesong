@@ -124,7 +124,10 @@
     </div>
 @endsection
 @push('scripts')
-@vite('resources/js/test.js')
+{{-- @vite(['resources/js/app.js','resources/js/pembayaran.js']) --}}
+@vite('resources/js/pembayaran.js')
+{{-- @vite(['resources/js/app.js', 'resources/js/pembayaran.js']) --}}
+
 @endpush
 
 

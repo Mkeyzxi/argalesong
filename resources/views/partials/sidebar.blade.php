@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="custom.css">
+
 <aside id="aside"
     class="hidden sidebar fixed inset-y-0 left-0 -mx-1 -my-1 bg-gray-700 border-r md:flex flex-col justify-between overflow-clip">
     <div class="overflow-x-clip overflow-y-auto">

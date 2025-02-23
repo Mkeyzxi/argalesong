@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function (){
 		let prevScrol = window.pageYOffset;
 		window.addEventListener('scroll', () => {
 			let currentScrol = window.pageYOffset;
-			console.log('hello')
 			if (prevScrol > currentScrol) {
 				navbar.style.top = "0";
 			} else {

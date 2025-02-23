@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="custom.css">
+
 
 <header id="navbar" class="fixed top-0 inset-x-0 z-10 transition-[top]">
     <nav

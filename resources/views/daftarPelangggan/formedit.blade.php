@@ -147,7 +147,6 @@
 @endsection
 
 @push('scripts')
-    @vite('resources/js/test.js')
     @vite('resources/js/form-edit.js')
     
 @endpush
@@ -163,5 +162,6 @@
             icons
         });
     </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 @endpush
-<script src="https://unpkg.com/lucide@latest"></script>
+

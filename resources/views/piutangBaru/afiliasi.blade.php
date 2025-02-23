@@ -307,7 +307,7 @@
                         <div>
                             <label for="tanggal_transaksi" class="block text-sm font-medium text-gray-700">Tanggal
                                 Transaksi</label>
-                            <input type="date" name="tanggal_transaksi" id="tanggal_transaksi"
+                            <input type="date" name="tanggal_transaksi" id="tanggal_transaksi"  onchange="initializeDateCalculations()"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                         </div>
 
@@ -315,7 +315,7 @@
                             <label for="jatuh_tempo" class="block text-sm font-medium text-gray-700">Jatuh Tempo</label>
                             <input type="date" name="jatuh_tempo" id="jatuh_tempo"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                , onchange="formatDate(this)">
+                                , onchange="initializeDateCalculations()">
                         </div>
                     </div>
                     <label for="jarak_hari" class="block text-sm font-medium text-gray-700 w-1/3">Jatuh Tempo</label>
@@ -347,13 +347,14 @@
                         </select>
                     </div>
                     <label for="idcompany" class="mr-2 text-gray-700 font-medium ">Pilih Pelanggan:</label>
-                    <div id="customerDropdownContainer" class="mb-4">
-                        <!-- Input untuk menampilkan nama pelanggan -->
+                    {{-- datalist digantikan karena tidak kompatibel dengan browser kebanyakan --}}
+                    {{-- <div id="customerDropdownContainer" class="mb-4">
+                    
                         <input list="groupList" name="nama_pelanggan" id="nama_pelanggan"
                             class="border border-gray-300 p-2 rounded-md w-80" placeholder="Pilih Pelanggan..."
                             oninput="syncCustomerId(this)">
 
-                        <!-- Datalist untuk menampilkan opsi -->
+                    
                         <datalist id="groupList">
                             @if (!empty($customers))
                                 @foreach ($customers as $pelanggan)
@@ -364,9 +365,27 @@
                             @endif
                         </datalist>
 
+                        <input type="hidden" name="id_Pelanggan" id="id_Pelanggan">
+                    </div> --}}
+
+                    <div id="customerDropdownContainer" class="mb-4">
+                      
+                        <select name="nama_pelanggan" id="nama_pelanggan" class="border border-gray-300 p-2 rounded-md w-80"
+                            onchange="syncCustomerId(this)">
+                            <option value="" selected disabled>Pilih Pelanggan...</option>
+                            @if (!empty($customers))
+                                @foreach ($customers as $pelanggan)
+                                    <option data-id="{{ $pelanggan->id_Pelanggan }}" value="{{ $pelanggan->name }}">
+                                        {{ $pelanggan->name }}
+                                    </option>
+                                @endforeach
+                            @endif
+                        </select>
+                    
                         <!-- Input tersembunyi untuk menyimpan id_Pelanggan -->
                         <input type="hidden" name="id_Pelanggan" id="id_Pelanggan">
                     </div>
+                    
 
                     <div class="flex">
                         <div class="mb-4">
@@ -485,7 +504,7 @@
             const perusahaan = document.getElementById('perusahaan').value; // Ambil perusahaan yang dipilih
             const tipePelanggan = document.getElementById('tipePelanggan').value; // Tipe pelanggan yang dipilih
             const datalist = document.getElementById('groupList'); // Referensi elemen datalist
-
+            
             // Kosongkan elemen datalist
             datalist.innerHTML = '';
 
@@ -564,8 +583,7 @@
         function syncCustomerId(input) {
             const datalist = document.getElementById('groupList'); // Referensi elemen datalist
             const hiddenInput = document.getElementById('id_Pelanggan'); // Input tersembunyi untuk id_Pelanggan
-            const selectedOption = Array.from(datalist.options).find(option => option.textContent.trim() === input.value
-                .trim());
+            const selectedOption = Array.from(datalist.options).find(option => option.textContent.trim() === input.value.trim());
 
             // Jika nama pelanggan ditemukan di datalist, sinkronkan id_Pelanggan
             if (selectedOption) {
@@ -575,5 +593,69 @@
                 hiddenInput.value = ''; // Reset jika input tidak cocok
             }
         }
+        // fungsi dari app yang dimasukkan kembali ketempatnya
+        // Fungsi-fungsi inisialisasi
+function initializeDateCalculations() {
+    const tanggalTransaksiInput = document.getElementById('tanggal_transaksi');
+    const jatuhTempoInput = document.getElementById('jatuh_tempo');
+    const jarakHariInput = document.getElementById('jarak_hari');
+
+    function updateJarakHari() {
+        const tanggalTransaksi = new Date(tanggalTransaksiInput.value);
+        const jatuhTempo = new Date(jatuhTempoInput.value);
+
+        if (tanggalTransaksi && jatuhTempo) {
+            const diffTime = Math.abs(jatuhTempo - tanggalTransaksi);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            jarakHariInput.value = diffDays;
+        }
+    }
+
+    function updateJatuhTempo() {
+        const tanggalTransaksi = new Date(tanggalTransaksiInput.value);
+        const jarakHari = parseInt(jarakHariInput.value, 10);
+
+        if (tanggalTransaksi && !isNaN(jarakHari)) {
+            const jatuhTempo = new Date(tanggalTransaksi);
+            jatuhTempo.setDate(jatuhTempo.getDate() + jarakHari);
+            jatuhTempoInput.value = jatuhTempo.toISOString().split('T')[0];
+        }
+    }
+
+    tanggalTransaksiInput.addEventListener('change', updateJarakHari);
+    jatuhTempoInput.addEventListener('change', updateJarakHari);
+    jarakHariInput.addEventListener('input', updateJatuhTempo);
+}
+window.fetchPajakRates = function(type) {
+    const tarifSelect = document.getElementById('tarif');
+    tarifSelect.innerHTML = '<option value="">-- Pilih Tarif --</option>';
+
+    if (type === 'Tidak Ada') {
+        return; // Exit if the selected type is 'Tidak Ada'
+    }
+
+    // Fetch tax rates from the server
+    fetch(`/api/pajak/${type}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success' && data.rates) {
+                data.rates.forEach(rate => {
+                    const option = document.createElement('option');
+                    option.value = rate.nilai; // Set value to the rate's value
+                    option.textContent = `${rate.nilai}%`; // Set display text
+                    tarifSelect.appendChild(option); // Append option to select
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching tax rates:', error); // Log any errors
+        });
+}
+        
     </script>
 @endpush
