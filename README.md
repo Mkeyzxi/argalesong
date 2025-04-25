@@ -14,7 +14,7 @@ Follow these steps to configure and run the application:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/fathurdja/argalesong.git
+git clone https://github.com/Mkeyzxi/argalesong.git
 cd argalesong
 ```
 
